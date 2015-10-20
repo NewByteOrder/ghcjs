@@ -241,17 +241,17 @@ thrunnerPackage = stringToPackageKey "thrunner"
 
 getThRunner :: GhcjsEnv -> HscEnv -> DynFlags -> Module -> TcM ThRunner
 getThRunner js_env hsc_env dflags m = do
-  let m' = moduleNameString (moduleName m)
+  let m' = "DUPA" -- moduleNameString (moduleName m)
   (r, fin) <- liftIO $ modifyMVar (thRunners js_env) $ \runners ->
     case M.lookup m' runners of
       Just r  -> return (runners, (r, return ()))
       Nothing -> do
         r <- startThRunner dflags js_env hsc_env
-        let fin = do
-              th_modfinalizers_var <- fmap tcg_th_modfinalizers
-                                           getGblEnv
-              writeTcRef th_modfinalizers_var
-                         [TH.qRunIO (finishTh js_env m' r)]
+        let fin = do return ()
+              -- th_modfinalizers_var <- fmap tcg_th_modfinalizers
+              --                              getGblEnv
+              -- writeTcRef th_modfinalizers_var
+              --            [TH.qRunIO (finishTh js_env m' r)]
         return (M.insert m' r runners, (r, fin))
   fin >> return r
 
@@ -320,9 +320,9 @@ finishRunner :: ThRunner -> IO ()
 finishRunner runner = do
   sendToRunner runner 0 TH.FinishTH
   readFromRunner runner >>= \case
-    (TH.FinishTH', _) -> do
-      hClose (thrHandleIn runner) `E.catch` \(_::E.SomeException) -> return ()
-      hClose (thrHandleErr runner) `E.catch` \(_::E.SomeException) -> return ()
+    (TH.FinishTH', _) -> return ()
+      -- hClose (thrHandleIn runner) `E.catch` \(_::E.SomeException) -> return ()
+      -- hClose (thrHandleErr runner) `E.catch` \(_::E.SomeException) -> return ()
     _                 -> error
       "finishRunner: unexpected response, expected FinishTH' message"
 
