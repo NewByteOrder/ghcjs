@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-NODE="nodejs"
+NODE="node"
 PART="$TEST_PART"
 CABAL="cabal"
 GHCJSBOOT="ghcjs-boot"
@@ -11,7 +11,7 @@ travis_boot() {
     case "$PART" in
         CORE1)
             ghcjs_boot -j2 --build-stage1-unbooted --no-prof
-            cabal_install random QuickCheck stm syb
+            cabal_install random QuickCheck stm syb parsec parallel
         ;;
         CORE2)
             ghcjs_boot -j2 --build-stage1-unbooted --no-prof
@@ -22,6 +22,7 @@ travis_boot() {
         ;;
         GHCJS)
             ghcjs_boot -j1 --no-prof
+            cabal_install random
         ;;
         *)
             echo $"Unknown test part: $PART"
@@ -32,7 +33,7 @@ travis_boot() {
 travis_test() {
     case "$PART" in
         CORE1)
-            run_tests --no-profiling -t ghc -t conc -t integer
+            run_tests --no-profiling -t ghc -t integer
         ;;
         CORE2)
             run_tests --no-profiling -t pkg -t fay
@@ -41,7 +42,7 @@ travis_test() {
             run_tests -t profiling
         ;;
         GHCJS)
-            run_tests --no-profiling -t ffi
+            run_tests --no-profiling -t ffi -t conc
         ;;
         *)
             echo $"Unknown test part: $PART"
@@ -58,7 +59,7 @@ cabal_install() {
 }
 
 run_tests() {
-    "$TESTRUNNER" --travis --with-node="$NODE" "$@" -j2
+    "$TESTRUNNER" --travis --with-spidermonkey=none --with-javascriptcore=none --with-node="$NODE" "$@" -j2
 }
 
 case "$1" in
