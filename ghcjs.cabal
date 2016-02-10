@@ -278,7 +278,7 @@ Executable ghcjs-boot
                       shelly               >= 1.5    && < 1.7,
                       system-fileio        >= 0.3    && < 0.4,
                       optparse-applicative >= 0.11   && < 0.13,
-                      tar                  >= 0.4    && < 0.5,
+                      tar                  >= 0.4    && < 0.6,
                       HTTP                 >= 4000.2 && < 5000,
                       yaml                 >= 0.8    && < 0.9,
                       process              >= 1.2    && < 1.3,
